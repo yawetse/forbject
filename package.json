@@ -15,7 +15,6 @@
     "url": "git@github.com:yawetse/forbject.git"
   },
   "dependencies": {
-    "classie": ">=0.1.0",
     "ejs": ">=0.8.5",
     "util-extend": ">=1.0.1"
   },

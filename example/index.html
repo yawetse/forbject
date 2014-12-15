@@ -20,24 +20,66 @@
 
     </header>
     <div class="forbject-test">
-      <h1>forbject Test
-        <small>
-          <button id="yawbutton">@yaw</button>
-          <button id="rafbutton">@raf</button>
-          <!-- <button id="ajaxbutton">@ajax</button> -->
-        </small>
-      </h1>
+      <!-- <h1>forbject Test</h1> -->
+      <div class="pull-left width50">
 
-      <form>
-        <section>
-          <label for="username">Username</label>
-          <input class="label-data" type="text" value="" name="username" id="username" />
-        </section>
-        <section>
-          <label>Profile</label>
-          <div class="label-data" id="profile"></div>
-        </section>
-      </form>
+        <form id="forbject-test" name="forbject-test" action="javascript:window.testForbject();" method="get">
+          <h2>Form</h2>
+          <article class="right-border">
+            <section>
+              <label for="username">Username</label>
+              <div class="label-data-container">
+                <input class="label-data-style" type="text" value="@user" name="username" id="username" />
+              </div>
+            </section>
+            <section>
+              <label for="location">Location</label>
+              <div class="label-data-container">
+                <select class="label-data-style" id="location" name="location">
+                  <option value="newyork">New York</option>
+                  <option value="losangeles">Los Angeles</option>
+                  <option value="Miami">Miami</option>
+                  <option value="Chicago">Chicago</option>
+                </select>
+              </div>
+            </section>
+            <section>
+              <label for="tastes">tastes</label>
+              <div class="label-data-container">
+                <input type="checkbox" name="tastes" value="music" checked>music</br>
+                <input type="checkbox" name="tastes" value="movies">movies</br>
+                <input type="checkbox" name="tastes" value="art">art</br>
+                <input type="checkbox" name="tastes" value="food" checked>food
+              </div>
+            </section>
+            <section>
+              <label for="sex">Gender</label>
+              <div class="label-data-container">
+                <input type="radio" name="sex" value="male" checked>Male
+                <br>
+                <input type="radio" name="sex" value="female">Female
+              </div>
+            </section>
+            <section>
+              <label>Profile</label>
+              <div class="label-data-container">
+                <textarea class="label-data-style" name="profile" id="profile">
+                </textarea>
+              </div>
+            </section>
+            <section>
+              <input type="submit" name="testforbjectsubmit" value="testforbject" />
+            </section>
+          </article>
+
+        </form>
+      </div>
+      <div class="pull-left width50">
+        <h2>Form Object</h2>
+        <pre id="forbject-test-result">
+
+        </pre>
+      </div>
     </div>
     <script id="profile-template" type="text/template">
   <div>

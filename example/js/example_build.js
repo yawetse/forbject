@@ -38,97 +38,180 @@ var extend = require('util-extend'),
  * @param {object} el element of tab container
  * @param {object} options configuration options
  */
-var forbject = function (options) {
+var forbject = function (formRef) {
 	events.EventEmitter.call(this);
 
-	var defaultOptions = {
-		ejsopen: '<%',
-		ejsclose: '%>'
-	};
-	this.options = extend(defaultOptions, options);
-	ejs.open = this.options.ejsopen;
-	ejs.close = this.options.ejsclose;
+	if (!formRef) {
+		return false;
+	}
 
-	this.binders = {};
-	this.update = this._update;
-	this.render = this._render;
-	this.addBinder = this._addBinder;
+	this.formRef = formRef;
+	this.keyRegex = /[^\[\]]+/g;
+	this.$form = null;
+	this.$formElements = [];
+	this.formObj = {};
+	this.refresh = this._refresh;
+	this.getObject = this._getObject;
+	if (!this.setForm()) {
+		return false;
+	}
+	if (!this.setFormElements()) {
+		return false;
+	}
+
+	this.setFormObj();
+
 };
 
 util.inherits(forbject, events.EventEmitter);
 
-/**
- * adds a data property binding to an html element selector
- * @param {object} options prop,elementSelector,binderType, binderValue, listenerEventArray
- */
-forbject.prototype._addBinder = function (options) {
-	try {
-		var el = document.querySelector(options.elementSelector);
-		this.binders[options.prop] = {
-			binder_el_selector: options.elementSelector,
-			binder_type: options.binderType || 'value',
-			binder_template: options.binderTemplate
-		};
-
-		this.emit('addedBinder', this.binders[options.prop]);
-	}
-	catch (e) {
-		throw new Error(e);
-	}
+forbject.prototype._refresh = function () {
+	this.formObj = {};
+	this.setFormObj();
 };
 
-/**
- * this will update your binded elements ui, once your forbject object is updated with new data
- * @param  {object} options data
- */
-forbject.prototype._update = function (options) {
-	var binder,
-		binderElement,
-		binderData,
-		binderTemplate;
-	try {
-		this.data = options.data;
+forbject.prototype._getObject = function () {
+	return this.formObj;
+};
 
-		for (var prop in this.data) {
-			binder = this.binders[prop];
-			binderElement = document.querySelector(binder.binder_el_selector);
-			binderData = this.data[prop];
-			binderTemplate = binder.binder_template;
-			if (binder.binder_type === 'value') {
-				binderElement.value = binderData;
+
+// Set the main form object we are working on.
+forbject.prototype.setForm = function () {
+
+	switch (typeof this.formRef) {
+
+	case 'string':
+		this.$form = document.querySelector(this.formRef);
+		break;
+
+	case 'object':
+		if (this.isDomNode(this.formRef)) {
+			this.$form = this.formRef;
+		}
+		break;
+
+	}
+
+	return this.$form;
+
+};
+
+// Set the elements we need to parse.
+forbject.prototype.setFormElements = function () {
+	this.$formElements = this.$form.querySelectorAll('input, button, textarea, select');
+	return this.$formElements.length;
+};
+
+// Check to see if the object is a HTML node.
+forbject.prototype.isDomNode = function (node) {
+	return typeof node === "object" && "nodeType" in node && node.nodeType === 1;
+};
+
+// Iteration through arrays and objects. Compatible with IE.
+forbject.prototype.forEach = function (arr, callback) {
+
+	if ([].forEach) {
+		return [].forEach.call(arr, callback);
+	}
+
+	var i;
+	for (i in arr) {
+		// Object.prototype.hasOwnProperty instead of arr.hasOwnProperty for IE8 compatibility.
+		if (Object.prototype.hasOwnProperty.call(arr, i)) {
+			callback.call(arr, arr[i]);
+		}
+	}
+
+	return;
+
+}
+
+// Recursive method that adds keys and values of the corresponding fields.
+forbject.prototype.addChild = function (result, domNode, keys, value) {
+
+	// #1 - Single dimensional array.
+	if (keys.length === 1) {
+
+		// We're only interested in the radio that is checked.
+		if (domNode.nodeName === 'INPUT' && domNode.type === 'radio') {
+			if (domNode.checked) {
+				return result[keys] = value;
 			}
-			else if (binder.binder_type === 'innerHTML') {
-				binderElement.innerHTML = binderData;
-			}
-			else if (binder.binder_type === 'template') {
-				binderElement.innerHTML = this.render({
-					data: binderData,
-					template: binderTemplate
-				});
+			else {
+				return;
 			}
 		}
-		this.emit('updatedBindee', options.data);
+
+		// Checkboxes are a special case. We have to grab each checked values
+		// and put them into an array.
+		if (domNode.nodeName === 'INPUT' && domNode.type === 'checkbox') {
+
+			if (domNode.checked) {
+
+				if (!result[keys]) {
+					result[keys] = [];
+				}
+				return result[keys].push(value);
+
+			}
+			else {
+				return;
+			}
+
+		}
+
+		// Multiple select is a special case.
+		// We have to grab each selected option and put them into an array.
+		if (domNode.nodeName === 'SELECT' && domNode.type === 'select-multiple') {
+
+			result[keys] = [];
+			var DOMchilds = domNode.querySelectorAll('option[selected]');
+			if (DOMchilds) {
+				this.forEach(DOMchilds, function (child) {
+					result[keys].push(child.value);
+				});
+			}
+			return;
+
+		}
+
+
+		// Fallback. The default one to one assign.
+		result[keys] = value;
+
 	}
-	catch (e) {
-		throw new Error(e);
+
+	// #2 - Multi dimensional array.
+	if (keys.length > 1) {
+
+		if (!result[keys[0]]) {
+			result[keys[0]] = {};
+		}
+
+		return this.addChild(result[keys[0]], domNode, keys.splice(1, keys.length), value);
+
 	}
+
+	return result;
+
 };
 
-/**
- * render element template with new data
- * @param  {object} options template, data
- * @return {string}         rendered html fragment
- */
-forbject.prototype._render = function (options) {
-	try {
-		var binderhtml = ejs.render(options.template, options.data);
-		this.emit('renderedBinder', options.data);
-		return binderhtml;
+forbject.prototype.setFormObj = function () {
+
+	var test, i = 0;
+
+	for (i = 0; i < this.$formElements.length; i++) {
+		// Ignore the element if the 'name' attribute is empty.
+		// Ignore the 'disabled' elements.
+		if (this.$formElements[i].name && !this.$formElements[i].disabled) {
+			test = this.$formElements[i].name.match(this.keyRegex);
+			this.addChild(this.formObj, this.$formElements[i], test, this.$formElements[i].value);
+		}
 	}
-	catch (e) {
-		throw new Error(e);
-	}
-};
+
+	return this.formObj;
+
+}
 module.exports = forbject;
 
 },{"ejs":3,"events":7,"util":12,"util-extend":13}],3:[function(require,module,exports){
@@ -1984,80 +2067,22 @@ function extend(origin, add) {
 
 var forbject = require('../../index'),
 	forbject1,
-	yawbutton,
-	rafbutton,
-	ajaxbutton;
-
-var yawprofiledata = {
-		username: "@yawetse",
-		profile: {
-			summary: "<h2>@yawetse's profile</h2><p>probably from database</p>"
-		}
-	},
-	rafprofiledata = {
-		username: "@sonicsound",
-		profile: {
-			summary: "<h2>@sonicsound's profile</h2><p>you can overwrite forbject's  render prototype function to use your favorite own template language. The default is EJS</p>"
-		}
-	},
-	ajaxprofiledata = {
-		username: "@ajaxmockcall",
-		profile: {
-			summary: "<h2>grab this from ajax post/get</p>"
-		}
-	};
-
-var loadprofile = function (e) {
-	var etarget = e.target;
-	if (etarget.id === 'yawbutton') {
-		forbject1.update({
-			data: yawprofiledata
-		});
-	}
-	else if (etarget.id === 'rafbutton') {
-		forbject1.update({
-			data: rafprofiledata
-		});
-	}
-	else if (etarget.id === 'ajaxbutton') {
-		forbject1.update({
-			data: ajaxprofiledata
-		});
-	}
-};
+	formjectTestResult;
 
 // var tabEvents = function () {
 // 	forbject1.on('tabsShowIndex', function (index) {
 // 		console.log('tab show index', index);
 // 	});
 // };
+window.testForbject = function () {
+	forbject1.refresh();
+	formjectTestResult.innerHTML = JSON.stringify(forbject1.getObject(), null, 2);
+};
 
 window.addEventListener('load', function () {
+	forbject1 = new forbject('#forbject-test');
+	formjectTestResult = document.querySelector('#forbject-test-result');
 
-	yawbutton = document.querySelector('#yawbutton');
-	rafbutton = document.querySelector('#rafbutton');
-	// ajaxbutton = document.querySelector('#ajaxbutton');
-
-	forbject1 = new forbject({
-		ejsopen: '{{',
-		ejsclose: '}}'
-	});
-
-	forbject1.addBinder({
-		prop: 'username',
-		elementSelector: '#username',
-		binderType: 'value'
-	});
-
-	forbject1.addBinder({
-		prop: 'profile',
-		elementSelector: '#profile',
-		binderType: 'template',
-		binderTemplate: document.querySelector('#profile-template').innerHTML
-	});
-
-	yawbutton.addEventListener('click', loadprofile, false);
-	rafbutton.addEventListener('click', loadprofile, false);
 	// ajaxbutton.addEventListener('click', loadprofile, false);
 	window.forbject1 = forbject1;
 }, false);
