@@ -1,0 +1,147 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <title>Forbject by yawetse</title>
+
+    <link rel="stylesheet" href="stylesheets/styles.css">
+    <link rel="stylesheet" href="stylesheets/pygment_trac.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    <!--[if lt IE 9]>
+    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+  </head>
+  <body>
+    <div class="wrapper">
+      <header>
+        <h1>Forbject</h1>
+        <p>simple form to object mapping</p>
+
+        <p class="view"><a href="https://github.com/yawetse/forbject">View the Project on GitHub <small>yawetse/forbject</small></a></p>
+
+
+        <ul>
+          <li><a href="https://github.com/yawetse/forbject/zipball/master">Download <strong>ZIP File</strong></a></li>
+          <li><a href="https://github.com/yawetse/forbject/tarball/master">Download <strong>TAR Ball</strong></a></li>
+          <li><a href="https://github.com/yawetse/forbject">View On <strong>GitHub</strong></a></li>
+        </ul>
+      </header>
+      <section>
+        <h1>
+<a id="forbject--" class="anchor" href="#forbject--" aria-hidden="true"><span class="octicon octicon-link"></span></a>forbject  <a href="http://badge.fury.io/js/forbject"><img src="https://badge.fury.io/js/forbject.svg" alt="NPM version"></a>
+</h1>
+
+<p>** CommonJS/Browserified simple form object data mapping, without magic **</p>
+
+<p>Forbject creates key/value pairs from form elements. This is a quick and simple vanilla JS way to map data without the baggage of a full framework.</p>
+
+<p><a href="https://yawetse.github.io/forbject/api/html/index.html">API Documenation</a></p>
+
+<h2>
+<a id="example" class="anchor" href="#example" aria-hidden="true"><span class="octicon octicon-link"></span></a>Example</h2>
+
+<p>Check out <code>example/index.html</code>, the example javascript for the example page is <code>resources/js/example_src.js</code></p>
+
+<h2>
+<a id="installation" class="anchor" href="#installation" aria-hidden="true"><span class="octicon octicon-link"></span></a>Installation</h2>
+
+<pre><code>$ npm install forbject
+</code></pre>
+
+<p>Forbject is a browserified/commonjs javascript module.</p>
+
+<h2>
+<a id="usage" class="anchor" href="#usage" aria-hidden="true"><span class="octicon octicon-link"></span></a>Usage</h2>
+
+<p><em>JavaScript</em></p>
+
+<div class="highlight highlight-javascript"><pre><span class="pl-s">var</span> forbject <span class="pl-k">=</span> <span class="pl-s3">require</span>(<span class="pl-s1"><span class="pl-pds">'</span>forbject<span class="pl-pds">'</span></span>),
+    myforbject;
+
+<span class="pl-s">var</span> <span class="pl-en">updateforbjectData</span> <span class="pl-k">=</span> <span class="pl-st">function</span>(){
+  forbject1<span class="pl-k">=</span> <span class="pl-k">new</span>.forbject(<span class="pl-s1"><span class="pl-pds">'</span>#form-selector<span class="pl-pds">'</span></span>);
+};
+
+<span class="pl-c">//initialize nav component after the dom has loaded</span>
+<span class="pl-s3">window</span>.addEventListener(<span class="pl-s1"><span class="pl-pds">'</span>load<span class="pl-pds">'</span></span>,<span class="pl-st">function</span>(){
+    <span class="pl-s">var</span> formelement <span class="pl-k">=</span> <span class="pl-s3">document</span>.querySelector(<span class="pl-s1"><span class="pl-pds">'</span>form#myFormObjectSelector<span class="pl-pds">'</span></span>);
+    myforbject <span class="pl-k">=</span> <span class="pl-k">new</span> <span class="pl-en">forbject</span>(formelement);
+
+    <span class="pl-c">//expose your nav component to the window global namespace</span>
+    <span class="pl-s3">window</span>.myforbject <span class="pl-k">=</span> myforbject;
+
+  <span class="pl-en">console</span><span class="pl-s3">.log</span>(myforbject.getObject());
+});</pre></div>
+
+<p><em>HTML</em></p>
+
+<div class="highlight highlight-html"><pre>&lt;<span class="pl-ent">html</span>&gt;
+    &lt;<span class="pl-ent">head</span>&gt;
+    &lt;<span class="pl-ent">title</span>&gt;Your Page&lt;/<span class="pl-ent">title</span>&gt;
+<span class="pl-s2">    &lt;<span class="pl-ent">script</span> <span class="pl-e">src</span>=<span class="pl-s1"><span class="pl-pds">'</span>[path/to/browserify/bundle].js<span class="pl-pds">'</span></span>&gt;&lt;/<span class="pl-ent">script</span>&gt;</span>
+    &lt;/<span class="pl-ent">head</span>&gt;
+    &lt;<span class="pl-ent">body</span>&gt;
+    &lt;<span class="pl-ent">form</span> <span class="pl-e">id</span>=<span class="pl-s1"><span class="pl-pds">"</span>form-selector<span class="pl-pds">"</span></span>&gt;
+      &lt;<span class="pl-ent">section</span>&gt;
+        &lt;<span class="pl-ent">label</span> <span class="pl-e">for</span>=<span class="pl-s1"><span class="pl-pds">"</span>field1<span class="pl-pds">"</span></span>&gt;Field 1&lt;/<span class="pl-ent">label</span>&gt;
+        &lt;<span class="pl-ent">input</span> <span class="pl-e">type</span>=<span class="pl-s1"><span class="pl-pds">"</span>text<span class="pl-pds">"</span></span> <span class="pl-e">value</span>=<span class="pl-s1"><span class="pl-pds">"</span>fieldval1<span class="pl-pds">"</span></span> <span class="pl-e">name</span>=<span class="pl-s1"><span class="pl-pds">"</span>field1<span class="pl-pds">"</span></span> <span class="pl-e">id</span>=<span class="pl-s1"><span class="pl-pds">"</span>field1<span class="pl-pds">"</span></span> /&gt;
+      &lt;/<span class="pl-ent">section</span>&gt;
+      &lt;<span class="pl-ent">section</span>&gt;
+        &lt;<span class="pl-ent">label</span> <span class="pl-e">for</span>=<span class="pl-s1"><span class="pl-pds">"</span>field2<span class="pl-pds">"</span></span>&gt;Field 2&lt;/<span class="pl-ent">label</span>&gt;
+        &lt;<span class="pl-ent">input</span> <span class="pl-e">type</span>=<span class="pl-s1"><span class="pl-pds">"</span>text<span class="pl-pds">"</span></span> <span class="pl-e">value</span>=<span class="pl-s1"><span class="pl-pds">"</span>fieldval2<span class="pl-pds">"</span></span> <span class="pl-e">name</span>=<span class="pl-s1"><span class="pl-pds">"</span>field2<span class="pl-pds">"</span></span> <span class="pl-e">id</span>=<span class="pl-s1"><span class="pl-pds">"</span>field2<span class="pl-pds">"</span></span> /&gt;
+      &lt;/<span class="pl-ent">section</span>&gt;
+    &lt;/<span class="pl-ent">form</span>&gt;
+    &lt;/<span class="pl-ent">body</span>&gt;
+&lt;/<span class="pl-ent">html</span>&gt;</pre></div>
+
+<h2>
+<a id="api" class="anchor" href="#api" aria-hidden="true"><span class="octicon octicon-link"></span></a>API</h2>
+
+<div class="highlight highlight-javascript"><pre><span class="pl-c">//update form elements to JSON from Form element</span>
+myforbject.refresh(); 
+
+<span class="pl-c">//get form object</span>
+myforbject.getObject(); 
+
+<span class="pl-c">//events</span>
+myforbject.on(<span class="pl-s1"><span class="pl-pds">'</span>init<span class="pl-pds">'</span></span>,callback); <span class="pl-c">// callback()</span>
+myforbject.on(<span class="pl-s1"><span class="pl-pds">'</span>serialized<span class="pl-pds">'</span></span>,callback); <span class="pl-c">// callback(data)</span>
+myforbject.on(<span class="pl-s1"><span class="pl-pds">'</span>refresh<span class="pl-pds">'</span></span>,callback); <span class="pl-c">// callback(data)</span></pre></div>
+
+<h2>
+<a id="development" class="anchor" href="#development" aria-hidden="true"><span class="octicon octicon-link"></span></a>Development</h2>
+
+<p><em>Make sure you have grunt installed</em></p>
+
+<pre><code>$ npm install -g grunt-cli
+</code></pre>
+
+<p>Then run grunt watch</p>
+
+<pre><code>$ grunt watch
+</code></pre>
+
+<h2>
+<a id="for-generating-documentation" class="anchor" href="#for-generating-documentation" aria-hidden="true"><span class="octicon octicon-link"></span></a>For generating documentation</h2>
+
+<pre><code>$ grunt doc
+$ jsdoc2md lib/**/*.js index.js &gt; doc/api.md
+</code></pre>
+
+<h2>
+<a id="notes" class="anchor" href="#notes" aria-hidden="true"><span class="octicon octicon-link"></span></a>Notes</h2>
+
+<ul>
+<li>The Forbject Module uses Node's event Emitter for event handling.</li>
+</ul>
+      </section>
+      <footer>
+        <p>This project is maintained by <a href="https://github.com/yawetse">yawetse</a></p>
+        <p><small>Hosted on GitHub Pages &mdash; Theme by <a href="https://github.com/orderedlist">orderedlist</a></small></p>
+      </footer>
+    </div>
+    <script src="javascripts/scale.fix.js"></script>
+    
+  </body>
+</html>
