@@ -1,8 +1,8 @@
 {
-  "title": "forbject - CommonJS/Browserified Data, Model, View binding",
+  "title": "forbject - CommonJS/Browserified form to object mapping",
   "name": "forbject",
-  "description": "CommonJS/Browserified HTML5 form to object module, with vanilla JS fallback",
-  "version": "0.0.9",
+  "description": "CommonJS/Browserified HTML5 form to object mapping, with vanilla JS fallback",
+  "version": "0.0.91",
   "main": "index.js",
   "engines": {
     "node": ">=0.10.x"
@@ -15,7 +15,6 @@
     "url": "git@github.com:yawetse/forbject.git"
   },
   "dependencies": {
-    "ejs": ">=0.8.5",
     "util-extend": ">=1.0.1"
   },
   "devDependencies": {
