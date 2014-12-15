@@ -1,8 +1,8 @@
 {
   "title": "forbject - CommonJS/Browserified Data, Model, View binding",
   "name": "forbject",
-  "description": "CommonJS/Browserified simple data view binding, without magic. This is a quick and light weight vanilla JS way to data bind UI elements",
-  "version": "1.0.3",
+  "description": "CommonJS/Browserified HTML5 form to object module, with vanilla JS fallback",
+  "version": "0.0.9",
   "main": "index.js",
   "engines": {
     "node": ">=0.10.x"
