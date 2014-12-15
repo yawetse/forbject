@@ -39,9 +39,11 @@
   },
   "keywords": [
     "knockout",
+    "form serialization",
     "data binding",
+    "data mapping",
     "ui binding",
-    "view binding",
+    "serialization",
     "ui",
     "ux",
     "dom"
