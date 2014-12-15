@@ -1,8 +1,8 @@
 {
   "title": "forbject - CommonJS/Browserified form to object mapping",
   "name": "forbject",
-  "description": "CommonJS/Browserified HTML5 form to object mapping, with vanilla JS fallback",
-  "version": "0.0.91",
+  "description": "forbject creates key/value pairs from form elements. This is a quick and simple vanilla JS way to map data   without the baggage of a full framework",
+  "version": "1.0.0",
   "main": "index.js",
   "engines": {
     "node": ">=0.10.x"
@@ -15,7 +15,6 @@
     "url": "git@github.com:yawetse/forbject.git"
   },
   "dependencies": {
-    "util-extend": ">=1.0.1"
   },
   "devDependencies": {
     "browserify": "~4.2.1",

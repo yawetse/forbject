@@ -14,13 +14,12 @@ module.exports = require('./lib/forbject');
 /*
  * forbject
  * http://github.com/yawetse/forbject
- *
+ * inspired by: https://github.com/serbanghita/formToObject.js
  * Copyright (c) 2014 Yaw Joseph Etse. All rights reserved.
  */
 'use strict';
 
-var extend = require('util-extend'),
-	events = require('events'),
+var events = require('events'),
 	util = require('util');
 
 /**
@@ -30,12 +29,9 @@ var extend = require('util-extend'),
  * @copyright Copyright (c) 2014 Typesettin. All rights reserved.
  * @license MIT
  * @constructor forbject
- * @requires module:ejs
  * @requires module:events
- * @requires module:util-extend
  * @requires module:util
- * @param {object} el element of tab container
- * @param {object} options configuration options
+ * @param {object} formRef element selector of form element or actual form element
  */
 var forbject = function (formRef) {
 	events.EventEmitter.call(this);
@@ -64,51 +60,73 @@ var forbject = function (formRef) {
 
 util.inherits(forbject, events.EventEmitter);
 
+/**
+ * refresh form object key/value pair mapping
+ * @return {object} form object
+ * @emits refresh
+ */
 forbject.prototype._refresh = function () {
 	this.formObj = {};
 	this.setFormObj();
+	this.emit('refresh');
 };
 
+/**
+ * returns form object
+ * @return {object} form object
+ */
 forbject.prototype._getObject = function () {
 	return this.formObj;
 };
 
-
-// Set the main form object we are working on.
+/**
+ * Set the main form object we are working on.
+ * @return {object} Form Element Object
+ */
 forbject.prototype.setForm = function () {
-
-	switch (typeof this.formRef) {
-
-	case 'string':
-		this.$form = document.querySelector(this.formRef);
-		break;
-
-	case 'object':
-		if (this.isDomNode(this.formRef)) {
-			this.$form = this.formRef;
+	try {
+		switch (typeof this.formRef) {
+		case 'string':
+			this.$form = document.querySelector(this.formRef);
+			break;
+		case 'object':
+			if (this.isDomNode(this.formRef)) {
+				this.$form = this.formRef;
+			}
+			break;
 		}
-		break;
-
+		this.emit('init');
+		return this.$form;
 	}
-
-	return this.$form;
-
+	catch (e) {
+		throw new Error(e);
+	}
 };
 
-// Set the elements we need to parse.
+/**
+ * Set the elements we need to parse.
+ * @return {number} number of form elements
+ */
 forbject.prototype.setFormElements = function () {
 	this.$formElements = this.$form.querySelectorAll('input, button, textarea, select');
 	return this.$formElements.length;
 };
 
-// Check to see if the object is a HTML node.
+/**
+ * Check to see if the object is a HTML node.
+ * @param  {object}  node dom element
+ * @return {Boolean} if object is a dom node
+ */
 forbject.prototype.isDomNode = function (node) {
-	return typeof node === "object" && "nodeType" in node && node.nodeType === 1;
+	return typeof node === 'object' && 'nodeType' in node && node.nodeType === 1;
 };
 
-// Iteration through arrays and objects. Compatible with IE.
+/**
+ * Iteration through arrays and objects. Compatible with IE.
+ * @param  {Array}   arr      array to iterate through
+ * @param  {Function} callback async callback
+ */
 forbject.prototype.forEach = function (arr, callback) {
-
 	if ([].forEach) {
 		return [].forEach.call(arr, callback);
 	}
@@ -122,10 +140,15 @@ forbject.prototype.forEach = function (arr, callback) {
 	}
 
 	return;
+};
 
-}
-
-// Recursive method that adds keys and values of the corresponding fields.
+/**
+ * Recursive method that adds keys and values of the corresponding fields.
+ * @param {object} result  form object
+ * @param {object} domNode element in form object
+ * @param {string} keys    regex result of form elements
+ * @param {object} value   value of domNode
+ */
 forbject.prototype.addChild = function (result, domNode, keys, value) {
 
 	// #1 - Single dimensional array.
@@ -192,11 +215,12 @@ forbject.prototype.addChild = function (result, domNode, keys, value) {
 	}
 
 	return result;
-
 };
 
+/**
+ * iterate through form element items and append enabled elements to form object
+ */
 forbject.prototype.setFormObj = function () {
-
 	var test, i = 0;
 
 	for (i = 0; i < this.$formElements.length; i++) {
@@ -207,13 +231,12 @@ forbject.prototype.setFormObj = function () {
 			this.addChild(this.formObj, this.$formElements[i], test, this.$formElements[i].value);
 		}
 	}
-
+	this.emit('serialized', this.formObj);
 	return this.formObj;
-
-}
+};
 module.exports = forbject;
 
-},{"events":3,"util":7,"util-extend":8}],3:[function(require,module,exports){
+},{"events":3,"util":7}],3:[function(require,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -1204,41 +1227,6 @@ function hasOwnProperty(obj, prop) {
 
 }).call(this,require('_process'),typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
 },{"./support/isBuffer":6,"_process":5,"inherits":4}],8:[function(require,module,exports){
-// Copyright Joyent, Inc. and other Node contributors.
-//
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the
-// "Software"), to deal in the Software without restriction, including
-// without limitation the rights to use, copy, modify, merge, publish,
-// distribute, sublicense, and/or sell copies of the Software, and to permit
-// persons to whom the Software is furnished to do so, subject to the
-// following conditions:
-//
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN
-// NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
-// DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
-// OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE
-// USE OR OTHER DEALINGS IN THE SOFTWARE.
-
-module.exports = extend;
-function extend(origin, add) {
-  // Don't do anything if add isn't an object
-  if (!add || typeof add !== 'object') return origin;
-
-  var keys = Object.keys(add);
-  var i = keys.length;
-  while (i--) {
-    origin[keys[i]] = add[keys[i]];
-  }
-  return origin;
-}
-
-},{}],9:[function(require,module,exports){
 'use strict';
 
 var forbject = require('../../index'),
@@ -1263,4 +1251,4 @@ window.addEventListener('load', function () {
 	window.forbject1 = forbject1;
 }, false);
 
-},{"../../index":1}]},{},[9]);
+},{"../../index":1}]},{},[8]);

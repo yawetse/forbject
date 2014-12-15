@@ -1,10 +1,8 @@
 # forbject  [![NPM version](https://badge.fury.io/js/forbject.svg)](http://badge.fury.io/js/forbject)
 
-** CommonJS/Browserified simple data view binding, without magic **
+** CommonJS/Browserified simple form object data mapping, without magic **
 
-This is a quick and light weight vanilla JS way to data bind UI elements. 
-
-When paired with ajax forms (check out  [formie](http://npmjs.org/package/formie)), provides a comprehensive data-binding ui framework without the baggage of a full framework.</p>
+Forbject creates key/value pairs from form elements. This is a quick and simple vanilla JS way to map data without the baggage of a full framework.
 
  [API Documenation](https://yawetse.github.io/forbject/api/html/index.html)
 
@@ -18,7 +16,7 @@ Check out `example/index.html`, the example javascript for the example page is `
 $ npm install forbject
 ```
 
-Binde is a browserified/commonjs javascript module.
+Forbject is a browserified/commonjs javascript module.
 
 ## Usage
 
@@ -28,34 +26,18 @@ var forbject = require('forbject'),
 	myforbject;
 
 var updateforbjectData = function(){
-  forbject1.update({
-    data: {
-      field1: "field1 data, probably from database",
-      field2: {
-        field2html: "<h2>field2</h2><p>by default this uses EJS, you can use whatever template language you want</p>"
-      }
-    }
-  });
+  forbject1= new.forbject('#form-selector');
 };
 
 //initialize nav component after the dom has loaded
 window.addEventListener('load',function(){
-	var tabelement = document.getElementById('tabs');
-	myforbject = new forbject();
-  myforbject.addBinder({
-    prop: 'field1',
-    elementSelector: '#field1',
-    binderType: 'value'
-  });
-  myforbject.addBinder({
-    prop: 'field2',
-    elementSelector: '#field2',
-    binderType: 'template',
-    binderTemplate: document.querySelector('#field2-template').innerHTML
-  });
+	var formelement = document.querySelector('form#myFormObjectSelector');
+	myforbject = new forbject(formelement);
+
 	//expose your nav component to the window global namespace
 	window.myforbject = myforbject;
-  updateforbjectData();
+
+  console.log(myforbject.getObject());
 });
 ```
 
@@ -67,20 +49,16 @@ window.addEventListener('load',function(){
   	<script src='[path/to/browserify/bundle].js'></script>
 	</head>
 	<body>
-    <section>
-      <label for="field1">Field 1</label>
-      <input type="text" value="" name="field1" id="field1" />
-    </section>
-    <section>
-      <label for="field2">Field 2</label>
-      <div id="field2"></div>
-    </section>
-
-    <script id="field2-template" type="text/template">
-      <div>
-          {{- field2html }}
-      </div>
-    </script>
+    <form id="form-selector">
+      <section>
+        <label for="field1">Field 1</label>
+        <input type="text" value="fieldval1" name="field1" id="field1" />
+      </section>
+      <section>
+        <label for="field2">Field 2</label>
+        <input type="text" value="fieldval2" name="field2" id="field2" />
+      </section>
+    </form>
 	</body>
 </html>
 ```
@@ -88,22 +66,16 @@ window.addEventListener('load',function(){
 ##API
 
 ```javascript
-//bind UI elements to JSON from AJAX response
-myforbject.update({
-  data:responsefromajax
-}); 
+//update form elements to JSON from Form element
+myforbject.refresh(); 
 
-//bind UI elements to JSON from AJAX response
-myforbject.addBinder({
-  elementSelector:responsefromajax,
-  binderType: 'value' || 'innerHTML' || 'template',
-  binderTemplate: document.querySelector('#templatehtml').innerHTML
-}); 
+//get form object
+myforbject.getObject(); 
 
 //events
-myforbject.on('addedBinder',callback); // callback(binder)
-myforbject.on('renderedBinder',callback); // callback(data)
-myforbject.on('updatedforbject',callback); // callback(data)
+myforbject.on('init',callback); // callback()
+myforbject.on('serialized',callback); // callback(data)
+myforbject.on('refresh',callback); // callback(data)
 ```
 ##Development
 *Make sure you have grunt installed*
@@ -122,5 +94,4 @@ $ jsdoc2md lib/**/*.js index.js > doc/api.md
 ```
 
 ##Notes
-* The Tab Module uses Node's event Emitter for event handling.
-* The Template Generator uses EJS, but you can generate your own mark up
+* The Forbject Module uses Node's event Emitter for event handling.

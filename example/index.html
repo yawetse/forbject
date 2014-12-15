@@ -12,8 +12,8 @@
 <body>
   <div class="container">
     <header class="clearfix">
-      <h1>CommonJS/Browserified simple data view binding, without magic</h1>
-      <p>forbject maps ui elements to a forbject object. This is a quick and simple vanilla JS way to data bind element. When paired with ajax forms (check out <a href="http://npmjs.org/package/formie">formie</a>), provides a comprehensive data-binding ui framework without the baggage of a full framework.</p>
+      <h1>CommonJS/Browserified simple form object data mapping, without magic</h1>
+      <p>Forbject creates key/value pairs from form elements. This is a quick and simple vanilla JS way to map data without the baggage of a full framework.</p>
       </p>
       <h3>Full API <a href="http://yawetse.github.io/forbject/api/html">documentation</a>
       </h3>
@@ -61,10 +61,15 @@
               </div>
             </section>
             <section>
+              <label for="image">Image</label>
+              <div class="label-data-container">
+                <input type="file" id="image" class="label-data-style" name="image" multiple="multiple">
+              </div>
+            </section>
+            <section>
               <label>Profile</label>
               <div class="label-data-container">
-                <textarea class="label-data-style" name="profile" id="profile">
-                </textarea>
+                <textarea class="label-data-style" name="profile" id="profile"></textarea>
               </div>
             </section>
             <section>
