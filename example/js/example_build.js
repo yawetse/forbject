@@ -20,6 +20,7 @@ module.exports = require('./lib/forbject');
 'use strict';
 
 var events = require('events'),
+	extend = require('util-extend'),
 	util = require('util');
 
 /**
@@ -33,9 +34,12 @@ var events = require('events'),
  * @requires module:util
  * @param {object} formRef element selector of form element or actual form element
  */
-var forbject = function (formRef) {
+var forbject = function (formRef, options) {
 	events.EventEmitter.call(this);
-
+	var defaultOptions = {
+		autorefresh: false
+	};
+	this.options = extend(defaultOptions, options);
 	if (!formRef) {
 		return false;
 	}
@@ -68,7 +72,7 @@ util.inherits(forbject, events.EventEmitter);
 forbject.prototype._refresh = function () {
 	this.formObj = {};
 	this.setFormObj();
-	this.emit('refresh');
+	this.emit('refresh', this.formObj);
 };
 
 /**
@@ -103,12 +107,21 @@ forbject.prototype.setForm = function () {
 	}
 };
 
+
 /**
  * Set the elements we need to parse.
  * @return {number} number of form elements
  */
 forbject.prototype.setFormElements = function () {
+	var autoRefreshOnValChange = function () {
+		this.refresh();
+	}.bind(this);
 	this.$formElements = this.$form.querySelectorAll('input, button, textarea, select');
+	if (this.options.autorefresh === true) {
+		for (var x = 0; x < this.$formElements.length; x++) {
+			this.$formElements[x].addEventListener('change', autoRefreshOnValChange, false);
+		}
+	}
 	return this.$formElements.length;
 };
 
@@ -236,7 +249,7 @@ forbject.prototype.setFormObj = function () {
 };
 module.exports = forbject;
 
-},{"events":3,"util":7}],3:[function(require,module,exports){
+},{"events":3,"util":7,"util-extend":8}],3:[function(require,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -568,46 +581,39 @@ if (typeof Object.create === 'function') {
 // shim for using process in browser
 
 var process = module.exports = {};
+var queue = [];
+var draining = false;
 
-process.nextTick = (function () {
-    var canSetImmediate = typeof window !== 'undefined'
-    && window.setImmediate;
-    var canPost = typeof window !== 'undefined'
-    && window.postMessage && window.addEventListener
-    ;
-
-    if (canSetImmediate) {
-        return function (f) { return window.setImmediate(f) };
+function drainQueue() {
+    if (draining) {
+        return;
     }
-
-    if (canPost) {
-        var queue = [];
-        window.addEventListener('message', function (ev) {
-            var source = ev.source;
-            if ((source === window || source === null) && ev.data === 'process-tick') {
-                ev.stopPropagation();
-                if (queue.length > 0) {
-                    var fn = queue.shift();
-                    fn();
-                }
-            }
-        }, true);
-
-        return function nextTick(fn) {
-            queue.push(fn);
-            window.postMessage('process-tick', '*');
-        };
+    draining = true;
+    var currentQueue;
+    var len = queue.length;
+    while(len) {
+        currentQueue = queue;
+        queue = [];
+        var i = -1;
+        while (++i < len) {
+            currentQueue[i]();
+        }
+        len = queue.length;
     }
-
-    return function nextTick(fn) {
-        setTimeout(fn, 0);
-    };
-})();
+    draining = false;
+}
+process.nextTick = function (fun) {
+    queue.push(fun);
+    if (!draining) {
+        setTimeout(drainQueue, 0);
+    }
+};
 
 process.title = 'browser';
 process.browser = true;
 process.env = {};
 process.argv = [];
+process.version = ''; // empty string to avoid regexp issues
 
 function noop() {}
 
@@ -621,13 +627,14 @@ process.emit = noop;
 
 process.binding = function (name) {
     throw new Error('process.binding is not supported');
-}
+};
 
 // TODO(shtylman)
 process.cwd = function () { return '/' };
 process.chdir = function (dir) {
     throw new Error('process.chdir is not supported');
 };
+process.umask = function() { return 0; };
 
 },{}],6:[function(require,module,exports){
 module.exports = function isBuffer(arg) {
@@ -1227,6 +1234,41 @@ function hasOwnProperty(obj, prop) {
 
 }).call(this,require('_process'),typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
 },{"./support/isBuffer":6,"_process":5,"inherits":4}],8:[function(require,module,exports){
+// Copyright Joyent, Inc. and other Node contributors.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a
+// copy of this software and associated documentation files (the
+// "Software"), to deal in the Software without restriction, including
+// without limitation the rights to use, copy, modify, merge, publish,
+// distribute, sublicense, and/or sell copies of the Software, and to permit
+// persons to whom the Software is furnished to do so, subject to the
+// following conditions:
+//
+// The above copyright notice and this permission notice shall be included
+// in all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN
+// NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+// DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
+// OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE
+// USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+module.exports = extend;
+function extend(origin, add) {
+  // Don't do anything if add isn't an object
+  if (!add || typeof add !== 'object') return origin;
+
+  var keys = Object.keys(add);
+  var i = keys.length;
+  while (i--) {
+    origin[keys[i]] = add[keys[i]];
+  }
+  return origin;
+}
+
+},{}],9:[function(require,module,exports){
 'use strict';
 
 var forbject = require('../../index'),
@@ -1251,4 +1293,4 @@ window.addEventListener('load', function () {
 	window.forbject1 = forbject1;
 }, false);
 
-},{"../../index":1}]},{},[8]);
+},{"../../index":1}]},{},[9]);
