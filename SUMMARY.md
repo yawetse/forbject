@@ -3,6 +3,6 @@
 * [readme](readme.md)
 * Installation
    * Quick Start Guide
-* Extensions
+* [Extensions](extensions.md)
 * Themes
 
