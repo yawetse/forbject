@@ -4,4 +4,5 @@
 * Installation
    * Quick Start Guide
 * Extensions
+* Themes
 
